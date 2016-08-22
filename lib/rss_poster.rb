@@ -1,0 +1,2 @@
+module RssPoster
+end

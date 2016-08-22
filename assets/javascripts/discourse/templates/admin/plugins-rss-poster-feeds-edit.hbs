@@ -1,0 +1,28 @@
+<form class='form-horizontal'>
+
+  <div>
+    <label for='url'>URL</label>
+    {{text-field name='url' value=model.url}}
+  </div>
+
+  <div>
+    <label for='category'>Category</label>
+    {{category-chooser name='category' value=model.category.id}}
+  </div>
+
+  <div>
+    <label for='user'>User</label>
+    {{user-selector name='user' usernames=model.user.username single='true'}}
+  </div>
+
+  <div>
+    <label for='interval'>Interval (minutes)</label>
+    {{number-field name='interval' value=model.interval}}
+  </div>
+
+  <div class='buttons'>
+    <button {{action 'save'}} class='btn btn-primary'>{{i18n 'admin.customize.save'}}</button>
+    <button {{action 'destroy'}} class='btn btn-danger'>{{fa-icon 'trash-o'}}{{i18n 'admin.customize.delete'}}</button>
+  </div>
+
+</form>
