@@ -32,7 +32,7 @@ module RssPoster
     def destroy
       feed = Feed.find(params[:id])
       Jobs.cancel_scheduled_job(:rss_poster_poll, feed_id: feed.id)
-      feed.delete!
+      feed.delete
       render nothing: true, status: 204
     end
 
