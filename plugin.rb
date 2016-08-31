@@ -9,7 +9,8 @@ load File.expand_path('../lib/rss_poster/engine.rb', __FILE__)
 after_initialize do
   load File.expand_path('../jobs/rss_poster_poll.rb', __FILE__)
   RssPoster::Feed.all.each do |feed|
-    Jobs.enqueue(:rss_poster_poll, feed_id: feed.id)
+    Jobs.cancel_scheduled_job(:rss_poster_poll, feed_id: feed.id)
+    Jobs.enqueue_in(5.seconds, :rss_poster_poll, feed_id: feed.id)
   end
 end
 

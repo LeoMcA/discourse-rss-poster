@@ -5,6 +5,8 @@
       <th>Category</th>
       <th>User</th>
       <th>Interval (minutes)</th>
+      <th>Last Run</th>
+      <th>Status</th>
     </tr>
   </thead>
   <tbody>
@@ -14,6 +16,8 @@
         <td>{{category-link feed.category}}</td>
         <td><a href='{{baseuri}}/users/{{user.username}}/activity' data-user-card='{{feed.user.username}}'>{{avatar feed.user imageSize='tiny'}} {{feed.user.username}}</a></td>
         <td>{{feed.interval}}</td>
+        <td>{{age-with-tooltip feed.last_run}}</td>
+        <td>{{feed-status feed}}</td>
       </tr>
     {{/each}}
   </tbody>
