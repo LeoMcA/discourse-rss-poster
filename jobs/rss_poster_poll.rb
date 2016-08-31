@@ -8,6 +8,7 @@ module Jobs
 
     def execute(args)
       id = args[:feed_id]
+      Jobs.cancel_scheduled_job(:rss_poster_poll, feed_id: id)
 
       feed = RssPoster::Feed.find(id)
       feed.last_run = Time.now
