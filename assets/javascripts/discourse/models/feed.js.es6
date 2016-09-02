@@ -6,7 +6,15 @@ const Feed = Ember.Object.extend({
       url: this.get('url'),
       category_id: this.get('category.id'),
       username: this.get('user.username'),
-      interval: this.get('interval')
+      interval: this.get('interval'),
+      regexp_title_pattern: this.get('regexp_title_pattern'),
+      regexp_title_options: this.get('regexp_title_options'),
+      regexp_title_replacement: this.get('regexp_title_replacement'),
+      regexp_body_pattern: this.get('regexp_body_pattern'),
+      regexp_body_options: this.get('regexp_body_options'),
+      regexp_body_replacement: this.get('regexp_body_replacement'),
+      add_link: this.get('add_link'),
+      link_text: this.get('link_text')
     }
   },
 

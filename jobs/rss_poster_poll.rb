@@ -16,12 +16,17 @@ module Jobs
       feed.save!
 
       begin
+        regexp_title = Regexp.new(feed.regexp_title_pattern.to_s, feed.regexp_title_options.to_s)
+        regexp_body = Regexp.new(feed.regexp_body_pattern.to_s, feed.regexp_body_options.to_s)
+
         rss = SimpleRSS.parse open(feed.url, allow_redirections: :all)
 
         rss.items.each do |item|
           url = TopicEmbed.normalize_url(item.link)
-          content = item.content.try(:force_encoding, 'UTF-8').try(:scrub) || item.description.try(:force_encoding, 'UTF-8').try(:scrub)
-          title = item.title.force_encoding('UTF-8').scrub
+          content = item.content.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
+                    item.description.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s)
+          content << "\n<hr> <small>#{feed.link_text} <a href='#{url}'>#{url}</a></small>\n" if feed.add_link
+          title = item.title.force_encoding('UTF-8').scrub.gsub(regexp_title, feed.regexp_title_replacement.to_s)
           content_sha1 = Digest::SHA1.hexdigest(content)
 
           custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)

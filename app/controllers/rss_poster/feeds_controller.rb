@@ -41,7 +41,17 @@ module RssPoster
     def feed_params
       user = User.find_by_username(params[:username])
       params[:category_id] = 1 if params[:category_id].to_i == 0
-      params.permit(:url, :category_id, :interval).merge({ :user_id => user.id })
+      params.permit(:url,
+                    :category_id,
+                    :interval,
+                    :regexp_title_pattern,
+                    :regexp_title_options,
+                    :regexp_title_replacement,
+                    :regexp_body_pattern,
+                    :regexp_body_options,
+                    :regexp_body_replacement,
+                    :add_link,
+                    :link_text).merge({ :user_id => user.id })
     end
   end
 end

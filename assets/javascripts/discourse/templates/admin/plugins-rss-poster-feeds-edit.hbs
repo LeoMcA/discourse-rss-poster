@@ -20,6 +20,46 @@
     {{number-field name='interval' value=model.interval}}
   </div>
 
+  <div>
+    <label for='regexp_title_pattern'>Title RegExp Pattern</label>
+    {{text-field name='regexp_title_pattern' value=model.regexp_title_pattern}}
+  </div>
+
+  <div>
+    <label for='regexp_title_options'>Title RegExp Options</label>
+    {{text-field name='regexp_title_options' value=model.regexp_title_options}}
+  </div>
+
+  <div>
+    <label for='regexp_title_replacement'>Title RegExp Replacement</label>
+    {{text-field name='regexp_title_replacement' value=model.regexp_title_replacement}}
+  </div>
+
+  <div>
+    <label for='regexp_body_pattern'>Body RegExp Pattern</label>
+    {{text-field name='regexp_body_pattern' value=model.regexp_body_pattern}}
+  </div>
+
+  <div>
+    <label for='regexp_body_options'>Body RegExp Options</label>
+    {{text-field name='regexp_body_options' value=model.regexp_body_options}}
+  </div>
+
+  <div>
+    <label for='regexp_body_replacement'>Body RegExp Replacement</label>
+    {{text-field name='regexp_body_replacement' value=model.regexp_body_replacement}}
+  </div>
+
+  <div>
+    <label for='add_link'>Add link to original article?</label>
+    {{input type='checkbox' name='add_link' checked=model.add_link}}
+  </div>
+
+  <div>
+    <label for='link_text'>Text to add before link</label>
+    {{text-field name='link_text' value=model.link_text}}
+  </div>
+
   <div class='buttons'>
     <button {{action 'save'}} class='btn btn-primary'>{{i18n 'admin.customize.save'}}</button>
     <button {{action 'destroy'}} class='btn btn-danger'>{{fa-icon 'trash-o'}}{{i18n 'admin.customize.delete'}}</button>
