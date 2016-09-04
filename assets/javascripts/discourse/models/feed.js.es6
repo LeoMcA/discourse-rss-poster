@@ -14,7 +14,8 @@ const Feed = Ember.Object.extend({
       regexp_body_options: this.get('regexp_body_options'),
       regexp_body_replacement: this.get('regexp_body_replacement'),
       add_link: this.get('add_link'),
-      link_text: this.get('link_text')
+      link_text: this.get('link_text'),
+      use_timestamps: this.get('use_timestamps')
     }
   },
 

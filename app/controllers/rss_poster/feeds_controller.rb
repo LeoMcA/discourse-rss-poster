@@ -51,7 +51,8 @@ module RssPoster
                     :regexp_body_options,
                     :regexp_body_replacement,
                     :add_link,
-                    :link_text).merge({ :user_id => user.id })
+                    :link_text,
+                    :use_timestamps).merge({ :user_id => user.id })
     end
   end
 end

@@ -21,6 +21,11 @@
   </div>
 
   <div>
+    <label for='use_timestamps'>Use Feed Timestamps?</label>
+    {{input type='checkbox' name='use_timestamps' checked=model.use_timestamps}}
+  </div>
+
+  <div>
     <label for='regexp_title_pattern'>Title RegExp Pattern</label>
     {{text-field name='regexp_title_pattern' value=model.regexp_title_pattern}}
   </div>

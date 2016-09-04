@@ -32,6 +32,7 @@ module Jobs
           custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
 
           if custom_field.nil?
+            feed.use_timestamps ? created_at = item.pubDate : created_at = Time.now
             creator = PostCreator.new(feed.user,
                                       title: title,
                                       raw: TopicEmbed.absolutize_urls(url, content),
@@ -39,7 +40,8 @@ module Jobs
                                       bypass_rate_limiter: true,
                                       cook_method: Post.cook_methods[:raw_html],
                                       category: feed.category.id,
-                                      custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => content_sha1 })
+                                      custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => content_sha1 },
+                                      created_at: created_at)
             creator.create
           else
             post = custom_field.post
@@ -48,7 +50,9 @@ module Jobs
               post.revise(feed.user,
                           raw: TopicEmbed.absolutize_urls(url, content),
                           skip_validations: true,
-                          bypass_rate_limiter: true)
+                          bypass_rate_limiter: true,
+                          force_new_version: true,
+                          bypass_bump: true)
               post.custom_fields[:rss_poster_sha1] = content_sha1
             end
           end
