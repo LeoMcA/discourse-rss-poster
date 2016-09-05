@@ -1,7 +1,8 @@
 # name: rss-poster
-# about: Plugin which allows RSS feeds to post to the forum
+# about: Discourse plugin which creates posts from feeds
 # version: 0.1
 # authors: Leo McArdle
+# url: https://github.com/LeoMcA/discourse-rss-poster
 
 load File.expand_path('../lib/rss_poster.rb', __FILE__)
 load File.expand_path('../lib/rss_poster/engine.rb', __FILE__)
