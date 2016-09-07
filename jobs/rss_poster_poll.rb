@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'simple-rss'
+require 'htmlentities'
 
 module Jobs
   class RssPosterPoll < Jobs::Base
@@ -27,7 +28,7 @@ module Jobs
                     item.content.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
                     item.description.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s)
           content << "\n<hr> <small>#{feed.link_text} <a href='#{url}'>#{url}</a></small>\n" if feed.add_link
-          title = item.title.force_encoding('UTF-8').scrub.gsub(regexp_title, feed.regexp_title_replacement.to_s)
+          title = HTMLEntities.new(:expanded).decode(item.title.force_encoding('UTF-8').scrub).gsub(regexp_title, feed.regexp_title_replacement.to_s)
           content_sha1 = Digest::SHA1.hexdigest(content)
 
           custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
