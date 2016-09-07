@@ -1,6 +1,6 @@
 # name: rss-poster
 # about: Discourse plugin which creates posts from feeds
-# version: 0.1
+# version: 0.2
 # authors: Leo McArdle
 # url: https://github.com/LeoMcA/discourse-rss-poster
 
