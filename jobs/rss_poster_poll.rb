@@ -29,7 +29,7 @@ module Jobs
                     item.description.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s)
           content << "\n<hr> <small>#{feed.link_text} <a href='#{url}'>#{url}</a></small>\n" if feed.add_link
           title = HTMLEntities.new(:expanded).decode(item.title.force_encoding('UTF-8').scrub).gsub(regexp_title, feed.regexp_title_replacement.to_s)
-          content_sha1 = Digest::SHA1.hexdigest(content)
+          item_sha1 = Digest::SHA1.hexdigest(title + content)
 
           custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
 
@@ -42,20 +42,21 @@ module Jobs
                                       bypass_rate_limiter: true,
                                       cook_method: Post.cook_methods[:raw_html],
                                       category: feed.category.id,
-                                      custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => content_sha1 },
+                                      custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => item_sha1 },
                                       created_at: created_at)
             creator.create
           else
             post = custom_field.post
             post_sha1 = post.custom_fields[:rss_poster_sha1]
-            if content_sha1 != post_sha1
+            if item_sha1 != post_sha1
               post.revise(feed.user,
+                          title: title,
                           raw: TopicEmbed.absolutize_urls(url, content),
                           skip_validations: true,
                           bypass_rate_limiter: true,
                           force_new_version: true,
                           bypass_bump: true)
-              post.custom_fields[:rss_poster_sha1] = content_sha1
+              post.custom_fields[:rss_poster_sha1] = item_sha1
             end
           end
         end
