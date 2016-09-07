@@ -47,16 +47,16 @@ module Jobs
             creator.create
           else
             post = custom_field.post
-            post_sha1 = post.custom_fields[:rss_poster_sha1]
+            post_sha1 = post.custom_fields['rss_poster_sha1']
             if item_sha1 != post_sha1
               post.revise(feed.user,
                           title: title,
                           raw: TopicEmbed.absolutize_urls(url, content),
                           skip_validations: true,
                           bypass_rate_limiter: true,
-                          force_new_version: true,
-                          bypass_bump: true)
-              post.custom_fields[:rss_poster_sha1] = item_sha1
+                          skip_revision: true)
+              post.custom_fields['rss_poster_sha1'] = item_sha1
+              post.save!
             end
           end
         end
