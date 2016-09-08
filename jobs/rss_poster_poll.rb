@@ -13,6 +13,8 @@ module Jobs
 
       feed = RssPoster::Feed.find(id)
       feed.last_run = Time.now
+      feed.failures = 0
+      feed.exceptions = ''
       feed.status = 'running'
       feed.save!
 
@@ -23,41 +25,46 @@ module Jobs
         rss = SimpleRSS.parse open(feed.url, allow_redirections: :all)
 
         rss.items.each do |item|
-          url = TopicEmbed.normalize_url(item.link)
-          content = item.content_encoded.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
-                    item.content.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
-                    item.description.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s)
-          content << "\n<hr> <small>#{feed.link_text} <a href='#{url}'>#{url}</a></small>\n" if feed.add_link
-          title = HTMLEntities.new(:expanded).decode(item.title.force_encoding('UTF-8').scrub).gsub(regexp_title, feed.regexp_title_replacement.to_s)
-          item_sha1 = Digest::SHA1.hexdigest(title + content)
+          begin
+            url = TopicEmbed.normalize_url(item.link)
+            content = item.content_encoded.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
+                      item.content.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s) ||
+                      item.description.try(:force_encoding, 'UTF-8').try(:scrub).try(:gsub, regexp_body, feed.regexp_body_replacement.to_s)
+            content << "\n<hr> <small>#{feed.link_text} <a href='#{url}'>#{url}</a></small>\n" if feed.add_link
+            title = HTMLEntities.new(:expanded).decode(item.title.force_encoding('UTF-8').scrub).gsub(regexp_title, feed.regexp_title_replacement.to_s)
+            item_sha1 = Digest::SHA1.hexdigest(title + content)
 
-          custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
+            custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
 
-          if custom_field.nil?
-            feed.use_timestamps ? created_at = item.pubDate : created_at = Time.now
-            creator = PostCreator.new(feed.user,
-                                      title: title,
-                                      raw: TopicEmbed.absolutize_urls(url, content),
-                                      skip_validations: true,
-                                      bypass_rate_limiter: true,
-                                      cook_method: Post.cook_methods[:raw_html],
-                                      category: feed.category.id,
-                                      custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => item_sha1 },
-                                      created_at: created_at)
-            creator.create
-          else
-            post = custom_field.post
-            post_sha1 = post.custom_fields['rss_poster_sha1']
-            if item_sha1 != post_sha1
-              post.revise(feed.user,
-                          title: title,
-                          raw: TopicEmbed.absolutize_urls(url, content),
-                          skip_validations: true,
-                          bypass_rate_limiter: true,
-                          skip_revision: true)
-              post.custom_fields['rss_poster_sha1'] = item_sha1
-              post.save!
+            if custom_field.nil?
+              feed.use_timestamps ? created_at = item.pubDate : created_at = Time.now
+              creator = PostCreator.new(feed.user,
+                                        title: title,
+                                        raw: TopicEmbed.absolutize_urls(url, content),
+                                        skip_validations: true,
+                                        bypass_rate_limiter: true,
+                                        cook_method: Post.cook_methods[:raw_html],
+                                        category: feed.category.id,
+                                        custom_fields: { :rss_poster_id => url, :rss_poster_sha1 => item_sha1 },
+                                        created_at: created_at)
+              creator.create
+            else
+              post = custom_field.post
+              post_sha1 = post.custom_fields['rss_poster_sha1']
+              if item_sha1 != post_sha1
+                post.revise(feed.user,
+                            title: title,
+                            raw: TopicEmbed.absolutize_urls(url, content),
+                            skip_validations: true,
+                            bypass_rate_limiter: true,
+                            skip_revision: true)
+                post.custom_fields['rss_poster_sha1'] = item_sha1
+                post.save!
+              end
             end
+          rescue Exception => e
+            feed.failures += 1
+            feed.exceptions << e.message << '&#10;'
           end
         end
 
