@@ -35,8 +35,13 @@ module Jobs
             item_sha1 = Digest::SHA1.hexdigest(title + content)
 
             custom_field = PostCustomField.find_by(name: 'rss_poster_id', value: url)
+            custom_field_deleted = false
 
-            if custom_field.nil?
+            if !custom_field.nil? && custom_field.post.nil?
+              custom_field.delete
+              custom_field_deleted = true
+            end
+            if custom_field.nil? || custom_field_deleted
               feed.use_timestamps ? created_at = item.pubDate : created_at = Time.now
               creator = PostCreator.new(feed.user,
                                         title: title,
