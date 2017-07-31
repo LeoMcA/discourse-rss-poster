@@ -1,8 +1,10 @@
 # name: rss-poster
 # about: Discourse plugin which creates posts from feeds
-# version: 0.3
+# version: 0.4
 # authors: Leo McArdle
 # url: https://github.com/LeoMcA/discourse-rss-poster
+
+require 'sidekiq/api'
 
 load File.expand_path('../lib/rss_poster.rb', __FILE__)
 load File.expand_path('../lib/rss_poster/engine.rb', __FILE__)
